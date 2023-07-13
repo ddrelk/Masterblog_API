@@ -1,8 +1,11 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 app = Flask(__name__)
 CORS(app)  # This will enable CORS for all routes
+limiter = Limiter(get_remote_address, app=app)
 
 POSTS = [
     {"id": 1, "title": "First post", "content": "This is the first post."},
@@ -39,6 +42,7 @@ def sort_posts():
 
 
 @app.route('/api/posts', methods=['POST'])
+@limiter.limit("10/minute")  # Limit to 10 post request per minute
 def add_posts():
     """
     Adds a new post
